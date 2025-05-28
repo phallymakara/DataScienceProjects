@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-users me-2"></i>Manage Users</h1>
+        <!-- If needed, add a button to create a new user directly -->
+    </div>
+
+    {% if form and user %}
+    <!-- Edit User Form -->
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit User: {{ user.username }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_edit_user', user_id=user.id) }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.username.label(class="form-label") }}
+                                {% if form.username.errors %}
+                                    {{ form.username(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.username(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email.label(class="form-label") }}
+                                {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.email(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.first_name.label(class="form-label") }}
+                                {% if form.first_name.errors %}
+                                    {{ form.first_name(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.first_name(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name.label(class="form-label") }}
+                                {% if form.last_name.errors %}
+                                    {{ form.last_name(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.last_name(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.role.label(class="form-label") }}
+                            {% if form.role.errors %}
+                                {{ form.role(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.role.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.role(class="form-select") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.profile_image.label(class="form-label") }}
+                            {% if form.profile_image.errors %}
+                                {{ form.profile_image(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.profile_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.profile_image(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Upload an image (JPG, JPEG, or PNG only).</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.profile_image_url.label(class="form-label") }}
+                            {% if form.profile_image_url.errors %}
+                                {{ form.profile_image_url(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.profile_image_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.profile_image_url(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">{{ form.profile_image_url.description }}</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-warning") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">All Users</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Full Name</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if users %}
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>
+                                        {% if user.profile_image_url %}
+                                            <img src="{{ user.profile_image_url }}" alt="{{ user.username }}" 
+                                                class="rounded-circle me-1" style="width: 25px; height: 25px; object-fit: cover;">
+                                        {% else %}
+                                            <i class="fas fa-user-circle me-1"></i>
+                                        {% endif %}
+                                        {{ user.username }}
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.get_full_name() }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ user.role == 'admin' and 'danger' or (user.role == 'instructor' and 'warning' or 'info') }}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if user.id != current_user.id %}
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger" disabled title="Cannot delete yourself">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the user <strong>{{ user.username }}</strong>?</p>
+                                                        <p class="text-danger"><strong>Warning:</strong> This action cannot be undone and will also delete all courses created by this user and their enrollments.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST">
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No users found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

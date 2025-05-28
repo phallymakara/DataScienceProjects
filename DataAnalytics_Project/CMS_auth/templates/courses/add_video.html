@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Add Video - {{ course.title }} - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-video me-2"></i>Add Video to {{ course.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {% if form.title.errors %}
+                                {{ form.title(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.title(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.video_type.label(class="form-label") }}
+                            {% if form.video_type.errors %}
+                                {{ form.video_type(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.video_type.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.video_type(class="form-select") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.video_url.label(class="form-label") }}
+                            {% if form.video_url.errors %}
+                                {{ form.video_url(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.video_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.video_url(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text" id="urlHelp">
+                                For YouTube videos, paste the video URL or video ID. For uploaded videos, provide the file path.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {% if form.description.errors %}
+                                {{ form.description(class="form-control is-invalid", rows=3) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.description(class="form-control", rows=3) }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.order.label(class="form-label") }}
+                            {% if form.order.errors %}
+                                {{ form.order(class="form-control is-invalid", type="number", min="0") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.order.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.order(class="form-control", type="number", min="0") }}
+                            {% endif %}
+                            <div class="form-text">
+                                Videos will be displayed in ascending order. Lower numbers appear first.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

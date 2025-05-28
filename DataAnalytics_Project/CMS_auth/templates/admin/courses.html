@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Courses - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-graduation-cap me-2"></i>Manage Courses</h1>
+        <a href="{{ url_for('create_course') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Create New Course
+        </a>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">All Courses</h5>
+            <div class="input-group w-50">
+                <input type="text" class="form-control" id="courseSearch" placeholder="Search courses...">
+                <button class="btn btn-light" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="coursesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Code</th>
+                            <th>Instructor</th>
+                            <th>Enrollments</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if courses %}
+                            {% for course in courses %}
+                                <tr>
+                                    <td>{{ course.id }}</td>
+                                    <td>{{ course.title }}</td>
+                                    <td><span class="badge bg-primary">{{ course.code }}</span></td>
+                                    <td>{{ course.instructor.get_full_name() }}</td>
+                                    <td>{{ course.get_enrollment_count() }}/{{ course.max_students }}</td>
+                                    <td>
+                                        <span class="badge {{ course.is_active and 'bg-success' or 'bg-secondary' }}">
+                                            {{ course.is_active and 'Active' or 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ course.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal{{ course.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteCourseModal{{ course.id }}" tabindex="-1" aria-labelledby="deleteCourseModalLabel{{ course.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="deleteCourseModalLabel{{ course.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the course <strong>{{ course.title }}</strong> ({{ course.code }})?</p>
+                                                        <p class="text-danger"><strong>Warning:</strong> This action cannot be undone and will also delete all enrollments for this course.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ url_for('delete_course', course_id=course.id) }}" method="POST">
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No courses found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Total Courses</h5>
+                            <h2 class="display-4">{{ courses|length }}</h2>
+                        </div>
+                        <i class="fas fa-graduation-cap fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Active Courses</h5>
+                            <h2 class="display-4">{{ courses|selectattr('is_active', 'eq', true)|list|length }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Avg. Enrollment</h5>
+                            {% set total_enrollments = 0 %}
+                            {% for course in courses %}
+                                {% set total_enrollments = total_enrollments + course.get_enrollment_count() %}
+                            {% endfor %}
+                            {% set avg_enrollment = (courses|length > 0) and (total_enrollments / courses|length)|round|int or 0 %}
+                            <h2 class="display-4">{{ avg_enrollment }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('courseSearch');
+        const searchBtn = document.getElementById('searchBtn');
+        const table = document.getElementById('coursesTable');
+        const rows = table.getElementsByTagName('tr');
+        
+        function filterTable() {
+            const filter = searchInput.value.toLowerCase();
+            
+            for (let i = 1; i < rows.length; i++) {
+                let found = false;
+                const cells = rows[i].getElementsByTagName('td');
+                
+                for (let j = 0; j < cells.length - 1; j++) { // Skip the actions column
+                    const cellText = cells[j].textContent || cells[j].innerText;
+                    
+                    if (cellText.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+        
+        searchBtn.addEventListener('click', filterTable);
+        
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                filterTable();
+            }
+        });
+    });
+</script>
+{% endblock %}

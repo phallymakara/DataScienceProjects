@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to EduCMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Welcome Section -->
+    <div class="py-5 mb-4 bg-primary text-white rounded">
+        <div class="container">
+            <h1 class="display-4">Welcome to EduCMS, {{ user.first_name or user.username }}!</h1>
+            <p class="lead">Thank you for joining our learning community. Let's start your educational journey together!</p>
+        </div>
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                    <h4>Browse Courses</h4>
+                    <p>Explore our wide selection of courses and find the ones that match your interests.</p>
+                    <a href="{{ url_for('courses_index') }}" class="btn btn-outline-primary">View Courses</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-edit fa-3x mb-3 text-primary"></i>
+                    <h4>Complete Your Profile</h4>
+                    <p>Add more information to your profile to personalize your experience.</p>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-primary">Update Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-graduation-cap fa-3x mb-3 text-primary"></i>
+                    <h4>Start Learning</h4>
+                    <p>Enroll in courses and begin your learning journey today.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Courses Section -->
+    <div class="mb-5">
+        <h2 class="mb-4">Featured Courses</h2>
+        <div class="row">
+            {% if featured_courses %}
+                {% for course in featured_courses %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if course.thumbnail_url %}
+                                <img src="{{ course.thumbnail_url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ course.code }}</span>
+                                <span class="badge bg-secondary">{{ course.get_enrollment_count() }} enrolled</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.title }}</h5>
+                                <p class="card-text">{{ course.description[:100] + '...' if course.description and course.description|length > 100 else course.description }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col">
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">No Featured Courses Yet</h4>
+                        <p>Check back soon for new course offerings!</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="card bg-light mb-5">
+        <div class="card-body">
+            <h3><i class="fas fa-clipboard-list me-2"></i>Next Steps</h3>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-transparent">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Create your account (Completed)
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                    Complete your profile with additional information
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                    Browse available courses and enroll in your first course
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                    Start learning and track your progress in your dashboard
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

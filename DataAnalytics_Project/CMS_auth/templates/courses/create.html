@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Create Course - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Course</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_course') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                {{ form.title.label(class="form-label") }}
+                                {% if form.title.errors %}
+                                    {{ form.title(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.title.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.title(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.code.label(class="form-label") }}
+                                {% if form.code.errors %}
+                                    {{ form.code(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.code.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.code(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">
+                                    Unique course code (e.g. CS101)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {% if form.description.errors %}
+                                {{ form.description(class="form-control is-invalid", rows=5) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.description(class="form-control", rows=5) }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.start_date.label(class="form-label") }}
+                                {% if form.start_date.errors %}
+                                    {{ form.start_date(class="form-control is-invalid", type="date") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.start_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.start_date(class="form-control", type="date") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.end_date.label(class="form-label") }}
+                                {% if form.end_date.errors %}
+                                    {{ form.end_date(class="form-control is-invalid", type="date") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.end_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.end_date(class="form-control", type="date") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.max_students.label(class="form-label") }}
+                                {% if form.max_students.errors %}
+                                    {{ form.max_students(class="form-control is-invalid", min=1) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.max_students.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.max_students(class="form-control", min=1) }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.thumbnail.label(class="form-label") }}
+                                {% if form.thumbnail.errors %}
+                                    {{ form.thumbnail(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.thumbnail.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.thumbnail(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">
+                                    Upload a JPG, JPEG, or PNG image for the course thumbnail.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.thumbnail_url.label(class="form-label") }}
+                                {% if form.thumbnail_url.errors %}
+                                    {{ form.thumbnail_url(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.thumbnail_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.thumbnail_url(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">
+                                    Alternatively, provide a URL to an image that represents this course.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_active(class="form-check-input") }}
+                                {{ form.is_active.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('courses_index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

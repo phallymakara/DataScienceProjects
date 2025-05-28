@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="py-5 mb-5 text-center bg-dark text-white rounded">
+        <div class="container">
+            <h1 class="display-4">Welcome to EduCMS</h1>
+            <p class="lead">A modern course management system for educational institutions</p>
+            <div class="d-flex justify-content-center mt-4">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row mb-5 text-center">
+        <div class="col-md-4">
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-body">
+                    <h2 class="display-4">{{ course_count }}</h2>
+                    <p class="lead">Active Courses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-body">
+                    <h2 class="display-4">{{ user_count }}</h2>
+                    <p class="lead">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-body">
+                    <h2 class="display-4">{{ enrollment_count }}</h2>
+                    <p class="lead">Total Enrollments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Courses Section -->
+    <div class="mb-5">
+        <h2 class="mb-4">Featured Courses</h2>
+        {% if current_user.is_authenticated %}
+        <div class="row">
+            {% if featured_courses %}
+                {% for course in featured_courses %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ course.code }}</span>
+                                <span class="badge bg-secondary">{{ course.get_enrollment_count() }} enrolled</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.title }}</h5>
+                                <p class="card-text">{{ course.description[:100] + '...' if course.description and course.description|length > 100 else course.description }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-info-circle me-1"></i>Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col">
+                    <div class="alert alert-info">
+                        No featured courses available yet.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Explore Our Courses</h4>
+                <p class="mb-3">Browse our wide selection of courses and start your learning journey today!</p>
+                <div>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login to Access Courses
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-1"></i>Register Now
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+        <div class="text-center mt-4">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('courses_index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-th-list me-1"></i>View All Courses
+                </a>
+            {% else %}
+                <a href="{{ url_for('login', next=url_for('courses_index')) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-th-list me-1"></i>View All Courses
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mb-5">
+        <h2 class="mb-4">Why Choose EduCMS?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-shield fa-3x mb-3 text-primary"></i>
+                        <h4>Role-Based Access</h4>
+                        <p>Different permissions for admins, instructors, and students to ensure proper access control.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chalkboard-teacher fa-3x mb-3 text-primary"></i>
+                        <h4>Course Management</h4>
+                        <p>Easily create, edit, and manage courses with detailed information and enrollment tracking.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                        <h4>Student Enrollment</h4>
+                        <p>Streamlined enrollment process for students with course availability management.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center py-5 mb-5 bg-dark text-white rounded">
+        <h2>Ready to get started?</h2>
+        <p class="lead">Join our platform and start managing your courses efficiently</p>
+        <div class="mt-4">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Register Now</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Enrollments - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-user-graduate me-2"></i>Manage Enrollments</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_enrollments') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="student" class="form-label">Student</label>
+                    <input type="text" class="form-control" id="student" name="student" value="{{ student_query }}" placeholder="Search by student name...">
+                </div>
+                <div class="col-md-4">
+                    <label for="course" class="form-label">Course</label>
+                    <input type="text" class="form-control" id="course" name="course" value="{{ course_query }}" placeholder="Search by course title...">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="dropped" {% if status == 'dropped' %}selected{% endif %}>Dropped</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Enrollments Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">All Enrollments</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Course Code</th>
+                            <th>Enrolled Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if enrollments %}
+                            {% for enrollment in enrollments %}
+                                <tr>
+                                    <td>{{ enrollment.id }}</td>
+                                    <td>
+                                        {% if enrollment.student.profile_image_url %}
+                                            <img src="{{ enrollment.student.profile_image_url }}" alt="{{ enrollment.student.username }}" 
+                                                class="rounded-circle me-1" style="width: 25px; height: 25px; object-fit: cover;">
+                                        {% else %}
+                                            <i class="fas fa-user-circle me-1"></i>
+                                        {% endif %}
+                                        {{ enrollment.student.get_full_name() }}
+                                    </td>
+                                    <td>{{ enrollment.course.title }}</td>
+                                    <td><span class="badge bg-primary">{{ enrollment.course.code }}</span></td>
+                                    <td>{{ enrollment.enrolled_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if enrollment.status == 'active' %}
+                                                bg-success
+                                            {% elif enrollment.status == 'completed' %}
+                                                bg-info
+                                            {% else %}
+                                                bg-secondary
+                                            {% endif %}">
+                                            {{ enrollment.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editEnrollmentModal{{ enrollment.id }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEnrollmentModal{{ enrollment.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editEnrollmentModal{{ enrollment.id }}" tabindex="-1" aria-labelledby="editEnrollmentModalLabel{{ enrollment.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-warning text-dark">
+                                                        <h5 class="modal-title" id="editEnrollmentModalLabel{{ enrollment.id }}">Edit Enrollment Status</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="editEnrollmentForm{{ enrollment.id }}" action="{{ url_for('admin_enrollments') }}" method="POST">
+                                                            <input type="hidden" name="enrollment_id" value="{{ enrollment.id }}">
+                                                            <div class="mb-3">
+                                                                <label for="enrollmentStatus{{ enrollment.id }}" class="form-label">Status</label>
+                                                                <select class="form-select" id="enrollmentStatus{{ enrollment.id }}" name="status">
+                                                                    <option value="active" {% if enrollment.status == 'active' %}selected{% endif %}>Active</option>
+                                                                    <option value="completed" {% if enrollment.status == 'completed' %}selected{% endif %}>Completed</option>
+                                                                    <option value="dropped" {% if enrollment.status == 'dropped' %}selected{% endif %}>Dropped</option>
+                                                                </select>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" form="editEnrollmentForm{{ enrollment.id }}" class="btn btn-warning">Update</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteEnrollmentModal{{ enrollment.id }}" tabindex="-1" aria-labelledby="deleteEnrollmentModalLabel{{ enrollment.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="deleteEnrollmentModalLabel{{ enrollment.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the enrollment of <strong>{{ enrollment.student.get_full_name() }}</strong> in <strong>{{ enrollment.course.title }}</strong>?</p>
+                                                        <p class="text-danger"><strong>Warning:</strong> This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ url_for('admin_delete_enrollment', enrollment_id=enrollment.id) }}" method="POST">
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No enrollments found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Total Enrollments</h5>
+                            <h2 class="display-4">{{ enrollments|length }}</h2>
+                        </div>
+                        <i class="fas fa-user-graduate fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Active Enrollments</h5>
+                            <h2 class="display-4">{{ enrollments|selectattr('status', 'eq', 'active')|list|length }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Unique Students</h5>
+                            {% set student_ids = [] %}
+                            {% for enrollment in enrollments %}
+                                {% if enrollment.student_id not in student_ids %}
+                                    {% set student_ids = student_ids + [enrollment.student_id] %}
+                                {% endif %}
+                            {% endfor %}
+                            <h2 class="display-4">{{ student_ids|length }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

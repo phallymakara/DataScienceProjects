@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Course Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Profile Information</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if current_user.profile_image_url %}
+                    <img src="{{ current_user.profile_image_url }}" alt="Profile Image" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-6x text-secondary"></i>
+                    </div>
+                    {% endif %}
+                    <h4>{{ current_user.get_full_name() }}</h4>
+                    <p class="text-muted">@{{ current_user.username }}</p>
+                    <div class="badge bg-{{ current_user.role == 'admin' and 'danger' or (current_user.role == 'instructor' and 'warning' or 'info') }} mb-3">
+                        {{ current_user.role.capitalize() }}
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-envelope me-2"></i>Email</span>
+                            <span>{{ current_user.email }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-calendar-alt me-2"></i>Joined</span>
+                            <span>{{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.username.label(class="form-label") }}
+                                {% if form.username.errors %}
+                                    {{ form.username(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.username(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email.label(class="form-label") }}
+                                {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.email(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.first_name.label(class="form-label") }}
+                                {% if form.first_name.errors %}
+                                    {{ form.first_name(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.first_name(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name.label(class="form-label") }}
+                                {% if form.last_name.errors %}
+                                    {{ form.last_name(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.last_name(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if current_user.is_admin() %}
+                        <div class="mb-3">
+                            {{ form.role.label(class="form-label") }}
+                            {% if form.role.errors %}
+                                {{ form.role(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.role.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.role(class="form-select") }}
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            {{ form.profile_image.label(class="form-label") }}
+                            {% if form.profile_image.errors %}
+                                {{ form.profile_image(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.profile_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.profile_image(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Upload an image (JPG, JPEG, or PNG only).</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.profile_image_url.label(class="form-label") }}
+                            {% if form.profile_image_url.errors %}
+                                {{ form.profile_image_url(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.profile_image_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.profile_image_url(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">{{ form.profile_image_url.description }}</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('change_password') }}">
+                        {{ password_form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ password_form.current_password.label(class="form-label") }}
+                            {% if password_form.current_password.errors %}
+                                {{ password_form.current_password(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in password_form.current_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ password_form.current_password(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ password_form.new_password.label(class="form-label") }}
+                                {% if password_form.new_password.errors %}
+                                    {{ password_form.new_password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in password_form.new_password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ password_form.new_password(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">
+                                    Password must be at least 8 characters long.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                {{ password_form.confirm_password.label(class="form-label") }}
+                                {% if password_form.confirm_password.errors %}
+                                    {{ password_form.confirm_password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in password_form.confirm_password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ password_form.confirm_password(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ password_form.submit(class="btn btn-warning") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

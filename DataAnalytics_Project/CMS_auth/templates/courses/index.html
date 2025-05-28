@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Courses - Course Management System{% endblock %}
+
+{% block head %}
+<style>
+    .card-hover:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transform: translateY(-0.25rem);
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-graduation-cap me-2"></i>Courses</h1>
+        {% if current_user.is_authenticated and (current_user.is_admin() or current_user.is_instructor()) %}
+        <a href="{{ url_for('create_course') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Create New Course
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('courses_index') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search by title or code...">
+                </div>
+                <div class="col-md-3">
+                    <label for="instructor" class="form-label">Instructor</label>
+                    <select class="form-select" id="instructor" name="instructor">
+                        <option value="">All Instructors</option>
+                        {% for instructor in instructors %}
+                            <option value="{{ instructor.id }}" {% if instructor_id|string == instructor.id|string %}selected{% endif %}>
+                                {{ instructor.get_full_name() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Course Listing -->
+    <div class="row">
+        {% if courses %}
+            {% for course in courses %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 card-hover">
+                        {% if course.thumbnail_url %}
+                        <img src="{{ course.thumbnail_url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-graduation-cap fa-4x text-secondary"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.title }}</h5>
+                            <p class="card-text">{{ course.description[:100] + '...' if course.description and course.description|length > 100 else course.description }}</p>
+                            <div class="d-flex justify-content-between mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>{{ course.instructor.get_full_name() }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i>{{ course.get_enrollment_count() }}/{{ course.max_students }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-grid">
+                                <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-info-circle me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No courses found.
+                    {% if current_user.is_authenticated and (current_user.is_admin() or current_user.is_instructor()) %}
+                        <a href="{{ url_for('create_course') }}" class="alert-link">Create a new course</a>.
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
